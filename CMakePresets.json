@@ -1,0 +1,74 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "local-development",
+      "hidden": true,
+      "displayName": "Local Development Build",
+      "description": "Local Development Build",
+      "generator": "Unix Makefiles",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "mpicc",
+        "CMAKE_CXX_COMPILER": "mpicxx",
+        "CMAKE_C_FLAGS":"",
+        "CMAKE_CXX_FLAGS":"",
+        "talyfem_DIR":"/home/khara/packages/taly_fem/build",
+        "P4EST_ROOT":"/home/khara/packages/p4est/p4est-2.8.6/FAST"
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": ["local-development"],
+      "displayName": "Local Debug build (./build-dbg)",
+      "description": "",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build-dbg",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": ["local-development"],
+      "displayName": "Local Release build (./build)",
+      "description": "",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "nova",
+      "displayName": "Nova Release Build (./build)",
+      "description": "Nova Release Build",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_COMPILER": "mpicc",
+        "CMAKE_CXX_COMPILER": "mpicxx",
+        "CMAKE_C_FLAGS":"",
+        "CMAKE_CXX_FLAGS":"",
+        "talyfem_DIR":"/work/mech-ai/bkhara/taly_fem/build"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "displayName": "Files will be in ./build-dbg"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "displayName": "Files will be in ./build"
+    },
+    {
+      "name": "nova",
+      "configurePreset": "nova",
+      "displayName": "Files will be in ./build"
+    }
+  ]
+}
