@@ -5,9 +5,9 @@ set(CMAKE_CXX_STANDARD 20)
 # Add the cmake_modules directory to the CMake module search path
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules")
 
-add_executable(ode_ts src/ode.cpp)
-add_executable(heat2d_ts src/heat2d.cpp)
-add_executable(petsc_ex45 src/ex45.c)
+add_executable(nptel_ode_ts src/nptel_examples/ode.cpp)
+add_executable(nptel_heat2d_ts src/nptel_examples/heat2d.cpp)
+add_executable(petsc_ex45 src/petsc_examples/ex45.c)
 add_executable(p4est_simple src/p4est_simple.cpp)
 
 if (NOT TARGET talyfem)
@@ -17,16 +17,16 @@ find_package(P4EST REQUIRED)
 
 # add the ./include directory to the include search path so we can #include
 # the header files we put in include/
-target_include_directories(ode_ts PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_include_directories(heat2d_ts PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(nptel_ode_ts PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(nptel_heat2d_ts PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(petsc_ex45 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(p4est_simple PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # this will also copy all the compiler definitions, etc. that TalyFEM was
 # compiled with (that were marked as PUBLIC) - e.g. this will automatically
 # add "-DENABLE_HDF5" if TalyFEM was compiled with HDF5 support
-target_link_libraries(ode_ts talyfem p4est::p4est)
-target_link_libraries(heat2d_ts talyfem p4est::p4est)
+target_link_libraries(nptel_ode_ts talyfem p4est::p4est)
+target_link_libraries(nptel_heat2d_ts talyfem p4est::p4est)
 target_link_libraries(petsc_ex45 talyfem p4est::p4est)
 target_link_libraries(p4est_simple p4est::p4est)
 
