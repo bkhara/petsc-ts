@@ -5,17 +5,17 @@ set(CMAKE_CXX_STANDARD 20)
 # Add the cmake_modules directory to the CMake module search path
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules")
 
+if (NOT TARGET talyfem)
+    find_package(talyfem REQUIRED)
+endif()
+find_package(P4EST REQUIRED)
+
 add_executable(nptel_ode_ts src/nptel_examples/ode.cpp)
 add_executable(nptel_poisson src/nptel_examples/poisson.cpp)
 add_executable(nptel_heat2d_ts src/nptel_examples/heat2d.cpp)
 add_executable(nptel_turing_patterns src/nptel_examples/turing_patterns.cpp)
 add_executable(petsc_ex45 src/petsc_examples/ex45.c)
 add_executable(p4est_simple src/p4est_simple.cpp)
-
-if (NOT TARGET talyfem)
-    find_package(talyfem REQUIRED)
-endif()
-find_package(P4EST REQUIRED)
 
 # add the ./include directory to the include search path so we can #include
 # the header files we put in include/
