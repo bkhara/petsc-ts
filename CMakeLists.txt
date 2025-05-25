@@ -63,3 +63,8 @@ target_link_libraries(p4est_simple p4est::p4est)
 add_executable(heat2d src/my_examples/heat2d.cpp)
 target_include_directories(heat2d PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(heat2d talyfem)
+
+add_executable(vanderpol src/my_examples/vanderpol.cpp)
+target_include_directories(vanderpol PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(vanderpol talyfem)
+

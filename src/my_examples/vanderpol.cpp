@@ -3,17 +3,25 @@
 #include <petsc.h>
 #include <talyfem/talyfem.h>
 
-static char help[] = "PETSC time stepper example";
+static char help[] = "Van Der Pol time stepping";
+
+typedef struct {
+    double    mu, amp, freq; // Parameters of the problem
+} AppCtx;
 
 PetscErrorCode FormRHS(TS ts, double t, Vec y, Vec g, void * ctx) {
     const double *ay;
     double *ag;
+    auto user = static_cast<AppCtx*>(ctx);
 
     VecGetArrayRead(y, &ay);
     VecGetArray(g, &ag);
 
-    ag[0] = ay[1];
-    ag[1] = -ay[0] + t;
+    double u = ay[0];
+    double v = ay[1];
+
+    ag[0] = v;
+    ag[1] = -user->mu * (1 - u*u)*v - u;
 
     VecRestoreArrayRead(y, &ay);
     VecRestoreArray(g, &ag);
@@ -24,8 +32,8 @@ PetscErrorCode FormRHS(TS ts, double t, Vec y, Vec g, void * ctx) {
 PetscErrorCode SetExact(double t, Vec y) {
     double *ay;
     VecGetArray(y, &ay);
-    ay[0] = t - sin(t);
-    ay[1] = 1.0 - cos(t);
+    ay[0] = 0.1;
+    ay[1] = 0.0;
     VecRestoreArray(y, &ay);
 
     return 0;
@@ -57,6 +65,11 @@ int main(int argc, char **args) {
     Vec y, yexact;
     TS ts;
 
+    AppCtx user;
+    user.mu = 0.25;
+    user.amp = 0.;
+    user.freq = 0.2;
+
     VecCreate(PETSC_COMM_WORLD, &y);
     VecSetSizes(y, PETSC_DECIDE, N);
     VecSetFromOptions(y);
@@ -64,8 +77,8 @@ int main(int argc, char **args) {
 
     TSCreate(PETSC_COMM_WORLD, &ts);
     TSSetProblemType(ts, TS_NONLINEAR);
-    TSSetRHSFunction(ts, NULL, FormRHS, NULL);
-    TSMonitorSet(ts, &TSMonitorCallback, NULL, NULL);
+    TSSetRHSFunction(ts, NULL, FormRHS, &user);
+    TSMonitorSet(ts, TSMonitorCallback, &user, NULL);
     TSSetType(ts, TSRK);
 
     TSSetTime(ts, t0);
