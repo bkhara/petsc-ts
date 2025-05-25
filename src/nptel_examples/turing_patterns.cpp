@@ -176,50 +176,50 @@ PetscErrorCode FormIJacobianLocal(DMDALocalInfo *info,
 
 int main(int argc,char **argv)
 {
-  PetscErrorCode ierr;
-  AppCtx     		 user;
-  TS             ts;
-  Vec            x;
-  DM             da;
-  DMDALocalInfo  info;
-  double         noiselevel = 0.15;
+    PetscErrorCode ierr;
+    AppCtx     		 user;
+    TS             ts;
+    Vec            x;
+    DM             da;
+    DMDALocalInfo  info;
+    double         noiselevel = 0.15;
 
-  PetscInitialize(&argc,&argv,NULL,"Solve coupled PDE");
+    PetscInitialize(&argc,&argv,NULL,"Solve coupled PDE");
 
-  user.L      = 2.5;
-  user.Du     = 8.0e-5;
-  user.Dv     = 4.0e-5;
-  user.phi    = 0.05;
-  user.kappa  = 0.063;
+    user.L      = 2.5;
+    user.Du     = 8.0e-5;
+    user.Dv     = 4.0e-5;
+    user.phi    = 0.05;
+    user.kappa  = 0.063;
 
-  ierr = DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_PERIODIC, DM_BOUNDARY_PERIODIC, DMDA_STENCIL_BOX, 3,3,PETSC_DECIDE,PETSC_DECIDE, 2, 1, NULL,NULL,&da); CHKERRQ(ierr);
-  ierr = DMSetFromOptions(da); CHKERRQ(ierr);
-  ierr = DMSetUp(da); CHKERRQ(ierr);
-  ierr = DMDASetFieldName(da,0,"u"); CHKERRQ(ierr);
-  ierr = DMDASetFieldName(da,1,"v"); CHKERRQ(ierr);
-  ierr = DMDAGetLocalInfo(da,&info); CHKERRQ(ierr);
+    ierr = DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_PERIODIC, DM_BOUNDARY_PERIODIC, DMDA_STENCIL_BOX, 3,3,PETSC_DECIDE,PETSC_DECIDE, 2, 1, NULL,NULL,&da); CHKERRQ(ierr);
+    ierr = DMSetFromOptions(da); CHKERRQ(ierr);
+    ierr = DMSetUp(da); CHKERRQ(ierr);
+    ierr = DMDASetFieldName(da,0,"u"); CHKERRQ(ierr);
+    ierr = DMDASetFieldName(da,1,"v"); CHKERRQ(ierr);
+    ierr = DMDAGetLocalInfo(da,&info); CHKERRQ(ierr);
 
-  ierr = DMDASetUniformCoordinates(da, 0.0, user.L, 0.0, user.L, -1.0, -1.0); CHKERRQ(ierr);
+    ierr = DMDASetUniformCoordinates(da, 0.0, user.L, 0.0, user.L, -1.0, -1.0); CHKERRQ(ierr);
 
-  ierr = TSCreate(PETSC_COMM_WORLD,&ts); CHKERRQ(ierr);
-  ierr = TSSetDM(ts,da); CHKERRQ(ierr); // Link the time-stepper with the DMDA
-  ierr = TSSetApplicationContext(ts,&user); CHKERRQ(ierr);
-  ierr = DMDATSSetRHSFunctionLocal(da,INSERT_VALUES, (DMDATSRHSFunctionLocal)FormRHSFunctionLocal,&user); CHKERRQ(ierr);
-  ierr = DMDATSSetRHSJacobianLocal(da,(DMDATSRHSJacobianLocal)FormRHSJacobianLocal,&user); CHKERRQ(ierr);
-  ierr = DMDATSSetIFunctionLocal(da,INSERT_VALUES,(DMDATSIFunctionLocal)FormIFunctionLocal,&user); CHKERRQ(ierr);
-  ierr = DMDATSSetIJacobianLocal(da,(DMDATSIJacobianLocal)FormIJacobianLocal,&user); CHKERRQ(ierr);
- 
-  ierr = TSSetType(ts,TSARKIMEX); CHKERRQ(ierr);
-  ierr = TSSetTime(ts,0.0); CHKERRQ(ierr);
-  ierr = TSSetMaxTime(ts,15000.0); CHKERRQ(ierr);
-  ierr = TSSetTimeStep(ts,5.0); CHKERRQ(ierr);
-  ierr = TSSetExactFinalTime(ts,TS_EXACTFINALTIME_MATCHSTEP); CHKERRQ(ierr);
-  ierr = TSSetFromOptions(ts);CHKERRQ(ierr);
+    ierr = TSCreate(PETSC_COMM_WORLD,&ts); CHKERRQ(ierr);
+    ierr = TSSetDM(ts,da); CHKERRQ(ierr); // Link the time-stepper with the DMDA
+    ierr = TSSetApplicationContext(ts,&user); CHKERRQ(ierr);
+    ierr = DMDATSSetRHSFunctionLocal(da,INSERT_VALUES, (DMDATSRHSFunctionLocal)FormRHSFunctionLocal,&user); CHKERRQ(ierr);
+    ierr = DMDATSSetRHSJacobianLocal(da,(DMDATSRHSJacobianLocal)FormRHSJacobianLocal,&user); CHKERRQ(ierr);
+    ierr = DMDATSSetIFunctionLocal(da,INSERT_VALUES,(DMDATSIFunctionLocal)FormIFunctionLocal,&user); CHKERRQ(ierr);
+    ierr = DMDATSSetIJacobianLocal(da,(DMDATSIJacobianLocal)FormIJacobianLocal,&user); CHKERRQ(ierr);
 
-  ierr = DMCreateGlobalVector(da,&x); CHKERRQ(ierr);
-  ierr = InitialState(da,x,noiselevel,&user); CHKERRQ(ierr);
-  ierr = TSSolve(ts,x); CHKERRQ(ierr);
+    ierr = TSSetType(ts,TSARKIMEX); CHKERRQ(ierr);
+    ierr = TSSetTime(ts,0.0); CHKERRQ(ierr);
+    ierr = TSSetMaxTime(ts,15000.0); CHKERRQ(ierr);
+    ierr = TSSetTimeStep(ts,5.0); CHKERRQ(ierr);
+    ierr = TSSetExactFinalTime(ts,TS_EXACTFINALTIME_MATCHSTEP); CHKERRQ(ierr);
+    ierr = TSSetFromOptions(ts);CHKERRQ(ierr);
 
-  VecDestroy(&x);  TSDestroy(&ts);  DMDestroy(&da);
-  return PetscFinalize();
+    ierr = DMCreateGlobalVector(da,&x); CHKERRQ(ierr);
+    ierr = InitialState(da,x,noiselevel,&user); CHKERRQ(ierr);
+    ierr = TSSolve(ts,x); CHKERRQ(ierr);
+
+    VecDestroy(&x);  TSDestroy(&ts);  DMDestroy(&da);
+    return PetscFinalize();
 }
