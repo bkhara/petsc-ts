@@ -192,7 +192,12 @@ int main(int argc,char **argv)
     user.phi    = 0.05;
     user.kappa  = 0.063;
 
-    ierr = DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_PERIODIC, DM_BOUNDARY_PERIODIC, DMDA_STENCIL_BOX, 3,3,PETSC_DECIDE,PETSC_DECIDE, 2, 1, NULL,NULL,&da); CHKERRQ(ierr);
+    PetscInt Nx = 3;
+    PetscInt Ny = 3;
+    PetscInt ndof = 2;
+    PetscInt stencil_width = 1;
+
+    ierr = DMDACreate2d(PETSC_COMM_WORLD, DM_BOUNDARY_PERIODIC, DM_BOUNDARY_PERIODIC, DMDA_STENCIL_BOX, Nx,Ny,PETSC_DECIDE,PETSC_DECIDE, ndof, stencil_width, NULL,NULL,&da); CHKERRQ(ierr);
     ierr = DMSetFromOptions(da); CHKERRQ(ierr);
     ierr = DMSetUp(da); CHKERRQ(ierr);
     ierr = DMDASetFieldName(da,0,"u"); CHKERRQ(ierr);
