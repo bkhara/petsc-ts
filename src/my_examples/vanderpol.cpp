@@ -5,6 +5,8 @@
 
 static char help[] = "Van Der Pol time stepping";
 
+static auto outfile_name = std::string("solution.txt");
+
 typedef struct {
     double    mu, amp, freq; // Parameters of the problem
 } AppCtx;
@@ -21,7 +23,7 @@ PetscErrorCode FormRHS(TS ts, double t, Vec y, Vec g, void * ctx) {
     double v = ay[1];
 
     ag[0] = v;
-    ag[1] = -user->mu * (1 - u*u)*v - u;
+    ag[1] = user->mu * (1-u*u)*v - u;
 
     VecRestoreArrayRead(y, &ay);
     VecRestoreArray(g, &ag);
@@ -46,17 +48,24 @@ PetscErrorCode TSMonitorCallback(TS ts, PetscInt steps, PetscReal time, Vec u, v
     VecGetArrayRead(u, &au);
 
     if (GetMPIRank() == 0) {
-        std::ofstream outfile("solution.txt", std::ios::app);
+        std::ofstream outfile(outfile_name.c_str(), std::ios::app);
         outfile << time << "," << au[0] << "," << au[1] << "\n";
     }
 
     return 0;
 }
 
+void PreProcessFile() {
+    if (GetMPIRank() == 0) {
+        std::ofstream outfile(outfile_name.c_str());
+        outfile << "t,u,v\n";
+    }
+}
+
 int main(int argc, char **args) {
     PetscInitialize(&argc, &args, NULL, help);
 
-    std::ofstream outfile("solution.txt");
+    PreProcessFile();
 
     const int N = 2;
     int nsteps;
