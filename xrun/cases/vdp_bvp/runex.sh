@@ -10,7 +10,7 @@ fi
 
 # {PROJECT_DIR} will be replaced by the python script
 BUILD_DIR="/home/khara/projects/petsc-ts/build"
-cd $BUILD_DIR || exit; make; cd - || exit
+cd $BUILD_DIR || exit; make ${FEXEC}; cd - || exit
 
 mpirun -n ${NPROC} ${BUILD_DIR}/${FEXEC} > ${OUTPUT_FILE} 2>&1 \
 -options_view \

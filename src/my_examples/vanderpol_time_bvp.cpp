@@ -250,8 +250,8 @@ int main(int argc,char **argv)
     ierr = SNESCreate(PETSC_COMM_WORLD, &snes); CHKERRQ(ierr);
     ierr = SNESSetDM(snes, da); CHKERRQ(ierr);
     ierr = SNESSetApplicationContext(snes, &user); CHKERRQ(ierr);
-    ierr = DMDASNESSetFunctionLocal(da,INSERT_VALUES,reinterpret_cast<DMDASNESFunctionFn*>(FormFunctionLocal),&user); CHKERRQ(ierr);
-    ierr = DMDASNESSetJacobianLocal(da,reinterpret_cast<DMDASNESJacobianFn*>(FormJacobianLocal),&user); CHKERRQ(ierr);
+    ierr = DMDASNESSetFunctionLocal(da,INSERT_VALUES,reinterpret_cast<DMDASNESFunction>(FormFunctionLocal),&user); CHKERRQ(ierr);
+    ierr = DMDASNESSetJacobianLocal(da,reinterpret_cast<DMDASNESJacobian>(FormJacobianLocal),&user); CHKERRQ(ierr);
     ierr = SNESSetFromOptions(snes); CHKERRQ(ierr);
 
     SNESGetKSP(snes, &ksp);
