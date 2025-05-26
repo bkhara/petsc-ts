@@ -68,3 +68,6 @@ add_executable(vanderpol src/my_examples/vanderpol.cpp)
 target_include_directories(vanderpol PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(vanderpol talyfem)
 
+add_executable(vanderpol_bvp src/my_examples/vanderpol_time_bvp.cpp)
+target_include_directories(vanderpol_bvp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(vanderpol_bvp talyfem)
