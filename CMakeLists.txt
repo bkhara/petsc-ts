@@ -71,3 +71,7 @@ target_link_libraries(vanderpol talyfem)
 add_executable(vanderpol_bvp src/my_examples/vanderpol_time_bvp.cpp)
 target_include_directories(vanderpol_bvp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(vanderpol_bvp talyfem)
+
+add_executable(heat2d_ptc src/my_examples/heat2d_pseudo_time.cpp)
+target_include_directories(heat2d_ptc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(heat2d_ptc talyfem)
