@@ -246,7 +246,7 @@ int main(int argc,char **argv)
     KSP ksp;
 
 
-    PetscInitialize(&argc,&argv,NULL,"heat equation 2D");
+    PetscInitialize(&argc,&argv,nullptr,"heat equation 2D");
 
     user.D0  = 1.0;
     user.mu = 0.25;
@@ -272,9 +272,9 @@ int main(int argc,char **argv)
     ierr = TSSetDM(ts,da); CHKERRQ(ierr);
     ierr = TSSetApplicationContext(ts,&user); CHKERRQ(ierr);
     ierr = DMDATSSetRHSFunctionLocal(da,INSERT_VALUES,
-           (DMDATSRHSFunctionLocal)FormRHSFunctionLocal,&user); CHKERRQ(ierr);
+           reinterpret_cast<DMDATSRHSFunctionLocal>(FormRHSFunctionLocal),&user); CHKERRQ(ierr);
     ierr = DMDATSSetRHSJacobianLocal(da,
-           (DMDATSRHSJacobianLocal)FormRHSJacobianLocal,&user); CHKERRQ(ierr);
+           reinterpret_cast<DMDATSRHSJacobianLocal>(FormRHSJacobianLocal),&user); CHKERRQ(ierr);
 
     ierr = TSSetType(ts,TSPSEUDO); CHKERRQ(ierr);
     ierr = TSSetTime(ts,0.0); CHKERRQ(ierr);

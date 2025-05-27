@@ -2,7 +2,7 @@
 
 NPROC=1
 OUTPUT_FILE="out.txt"
-FEXEC="vanderpol_bvp_ptc"
+FEXEC="vdp_bvp_ptc"
 
 if [ ! -d "./datafiles" ]; then
     mkdir -p "./datafiles"
