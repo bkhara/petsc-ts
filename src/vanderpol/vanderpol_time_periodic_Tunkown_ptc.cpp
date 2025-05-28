@@ -17,6 +17,7 @@
 // and no condition at t = T_final
 
 static double Lx = 1.0;
+static double T_initial_guess = 6.2;
 typedef struct {
     double u, v, w; // w is the unknown period T
 } Field;
@@ -224,7 +225,7 @@ PetscErrorCode InitialState(DM da, Vec Y, HeatCtx* user) {
     {
         aY[i].u = 0.2 + dist(rng);
         aY[i].v = 0.1 + dist(rng);
-        aY[i].w = 6.2 + dist(rng);
+        aY[i].w = T_initial_guess + dist(rng);
     }
     ierr = DMDAVecRestoreArray(da,Y,&aY); CHKERRQ(ierr);
     return 0;
