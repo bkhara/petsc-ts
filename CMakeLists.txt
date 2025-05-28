@@ -79,3 +79,7 @@ target_link_libraries(vdp_bvp talyfem)
 add_executable(vdp_bvp_ptc src/vanderpol/vanderpol_time_bvp_ptc.cpp)
 target_include_directories(vdp_bvp_ptc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(vdp_bvp_ptc talyfem)
+
+add_executable(vdp_periodic_ptc src/vanderpol/vanderpol_time_periodic_ptc.cpp)
+target_include_directories(vdp_periodic_ptc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(vdp_periodic_ptc talyfem)
