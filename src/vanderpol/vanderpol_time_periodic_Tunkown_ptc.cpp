@@ -72,15 +72,19 @@ PetscErrorCode FormRHSFunctionLocal(DMDALocalInfo *info, double t, Field *au, Fi
 
         double u = au[i].u;
         double v = au[i].v;
+        double w = au[i].w;
 
         if (i == 0) {
-            aG[i].u = -(u - 0.2);
-            aG[i].v = -(v - au[mx-1].v);
+            aG[i].u = -(u - au[mx-1].u);
+            aG[i].v = -(v - 0.0); // phase condition
+            aG[i].w = -(w - au[mx-1].w);
         } else {
             double u_dot = (au[i].u - au[i-1].u) / hx;
             double v_dot = (au[i].v - au[i-1].v) / hx;
-            aG[i].u = -(u_dot - v);
-            aG[i].v = -(v_dot - mu * (1 - u*u) * v + u);
+            double w_dot = (au[i].w - au[i-1].w) / hx;
+            aG[i].u = -(u_dot - v*w);
+            aG[i].v = -(v_dot - mu*(1 - u*u)*v*w + u*w);
+            aG[i].w = -(w_dot - 0.0);
         }
     }
 
@@ -89,7 +93,7 @@ PetscErrorCode FormRHSFunctionLocal(DMDALocalInfo *info, double t, Field *au, Fi
 
 PetscErrorCode FormRHSJacobianLocal(DMDALocalInfo *info, double t, Field *au, Mat J, Mat P, const HeatCtx *user) {
     PetscErrorCode ierr;
-    constexpr int max_values = 4;
+    constexpr int max_values = 6;
     int            i, j, ncols;
     const double   D = user->D0;
     double         hx, hy, hx2, hy2, v[max_values];
@@ -102,45 +106,71 @@ PetscErrorCode FormRHSJacobianLocal(DMDALocalInfo *info, double t, Field *au, Ma
     for (i = info->xs; i < info->xs+info->xm; i++) {
         const double un = au[i].u;
         const double vn = au[i].v;
+        const double wn = au[i].w;
         if (i == 0) {
-            ncols = 1;
+            ncols = 2;
             row.i = i; row.c = 0;
             col[0].i = i; col[0].c = 0;
+            col[1].i = mx-1; col[1].c = 0;
+            v[0] = -(1);
+            v[1] = -(-1);
+            ierr = MatSetValuesStencil(P,1,&row,ncols,col,v,INSERT_VALUES); CHKERRQ(ierr);
+
+            ncols = 1;
+            row.i = i; row.c = 1;
+            col[0].i = i; col[0].c = 1;
             v[0] = -1;
             ierr = MatSetValuesStencil(P,1,&row,ncols,col,v,INSERT_VALUES); CHKERRQ(ierr);
 
             ncols = 2;
-            row.i = i; row.c = 1;
-            col[0].i = i; col[0].c = 1;
-            col[1].i = mx-1; col[1].c = 1;
+            row.i = i; row.c = 2;
+            col[0].i = i; col[0].c = 2;
+            col[1].i = mx-1; col[1].c = 2;
             v[0] = -(1);
             v[1] = -(-1);
             ierr = MatSetValuesStencil(P,1,&row,ncols,col,v,INSERT_VALUES); CHKERRQ(ierr);
         } else {
-            // column numbers: u{n-1} = 0, v{n-1} = 1, u{n} = 2, v{n} = 3
-            ncols = 4;
+            // column numbers: u{n-1} = 0, v{n-1} = 1, w{n-1} = 2, u{n} = 3, v{n} = 4, w{n} = 5
+            ncols = 6;
             row.i = i; row.c = 0;
             col[0].i = i-1; col[0].c = 0;
             col[1].i = i-1; col[1].c = 1;
-            col[2].i = i; col[2].c = 0;
-            col[3].i = i; col[3].c = 1;
+            col[2].i = i-1; col[2].c = 2;
+            col[3].i = i;   col[3].c = 0;
+            col[4].i = i;   col[4].c = 1;
+            col[5].i = i;   col[5].c = 2;
             v[0] = -(-1.0/hx);
             v[1] = -(0.0);
-            v[2] = -(1.0/hx);
-            v[3] = -(-1.0);
+            v[2] = -(0.0);
+            v[3] = -(1.0/hx);
+            v[4] = -(-wn);
+            v[5] = -(-vn);
             ierr = MatSetValuesStencil(P,1,&row,ncols,col,v,INSERT_VALUES); CHKERRQ(ierr);
 
-            // column numbers: u{n-1} = 0, v{n-1} = 1, u{n} = 2, v{n} = 3
-            ncols = 4;
+            // column numbers: u{n-1} = 0, v{n-1} = 1, w{n-1} = 2, u{n} = 3, v{n} = 4, w{n} = 5
+            ncols = 6;
             row.i = i; row.c = 1;
             col[0].i = i-1; col[0].c = 0;
             col[1].i = i-1; col[1].c = 1;
-            col[2].i = i; col[2].c = 0;
-            col[3].i = i; col[3].c = 1;
+            col[2].i = i-1; col[2].c = 2;
+            col[3].i = i;   col[3].c = 0;
+            col[4].i = i;   col[4].c = 1;
+            col[5].i = i;   col[5].c = 2;
             v[0] = -(0.0);
             v[1] = -(-1.0/hx);
-            v[2] = -(2 * mu * un * vn + 1);
-            v[3] = -(1/hx - mu *(1 - un*un));
+            v[2] = -(0.0);
+            v[3] = -(2*mu*un*vn + 1)*wn;
+            v[4] = -(1.0/hx - mu *(1 - un*un)*wn);
+            v[5] = -(-mu*(1 - un*un)*vn + un);
+            ierr = MatSetValuesStencil(P,1,&row,ncols,col,v,INSERT_VALUES); CHKERRQ(ierr);
+
+            // column numbers: w{n-1} = 0, w{n} = 1
+            ncols = 2;
+            row.i = i; row.c = 2;
+            col[0].i = i-1; col[0].c = 2;
+            col[1].i = i;   col[1].c = 2;
+            v[0] = -(-1.0/hx);
+            v[1] = -(1.0/hx);
             ierr = MatSetValuesStencil(P,1,&row,ncols,col,v,INSERT_VALUES); CHKERRQ(ierr);
         }
     }
@@ -180,7 +210,7 @@ PetscErrorCode InitialState(DM da, Vec Y, HeatCtx* user) {
     int            i,j;
     double         sx,sy;
     DMDACoor2d     *aC;
-    Field          *aY; // 2D array
+    Field          *aY; // 1D array
 
     // Create random number generator and uniform distribution
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -194,6 +224,7 @@ PetscErrorCode InitialState(DM da, Vec Y, HeatCtx* user) {
     {
         aY[i].u = 0.2 + dist(rng);
         aY[i].v = 0.1 + dist(rng);
+        aY[i].w = 6.2 + dist(rng);
     }
     ierr = DMDAVecRestoreArray(da,Y,&aY); CHKERRQ(ierr);
     return 0;
@@ -262,7 +293,7 @@ int main(int argc,char **argv)
     user.D0  = 1.0;
     user.mu = 0.25;
 
-    PetscInt Nx = 250;
+    PetscInt Nx = 10;
     PetscInt ndof = 3;
     PetscInt stencil_width = 1;
 
